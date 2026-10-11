@@ -31,10 +31,10 @@ func (u User) Save() error {
 }
 
 func (u User) ValidateCredentials() error {
-	query := "SELECT password FROM users where email = ?"
+	query := "SELECT id, password FROM users where email = ?"
 	row := db.DB.QueryRow(query, u.Email)
 	var retrievedPassword string
-	row.Scan(&retrievedPassword)
+	row.Scan(&u.ID, &retrievedPassword)
 	passwordIsValid := utils.CheckPasswordHash(u.Password, retrievedPassword)
 	if !passwordIsValid {
 		return errors.New("invalid credentials")
