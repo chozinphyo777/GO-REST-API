@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"example.com/go-rest-api/models"
-	"example.com/go-rest-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,25 +34,16 @@ func getEvent(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization") // get the token from the request header
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not Authorized."})
-		return
-	}
-	userId, err := utils.VerifyToken(token) // validate the token
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not Authorized.", "error": err.Error()})
-		return
-	}
-	var event models.Event               // declare a variable of type Event from models package
-	err = context.ShouldBindJSON(&event) // bind the JSON data from the request body to the event variable, and check for errors
+	var event models.Event                // declare a variable of type Event from models package
+	err := context.ShouldBindJSON(&event) // bind the JSON data from the request body to the event variable, and check for errors
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not pass request data.", "error": err.Error()})
 		return
 	}
 
-	event.UserID = userId // set the UserID of the event to the userId from the token
-	err = event.Save()    // save the event
+	userId := context.GetInt64("userId") // get the userId from the context, which was set by the authentication middleware
+	event.UserID = userId                // set the UserID of the event to the userId from the token
+	err = event.Save()                   // save the event
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event", "error": err.Error()})
 		return
