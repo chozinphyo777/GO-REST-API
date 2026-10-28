@@ -12,11 +12,11 @@ type Event struct {
 	Description string    `binding:"required"`
 	Location    string    `binding:"required"`
 	DateTime    time.Time `binding:"required"`
-	UserID      int
+	UserID      int64
 }
 
 var events = []Event{} // slice of Event structs
-func (e Event) Save() error {
+func (e *Event) Save() error {
 	query := `INSERT INTO events (name, description, location, dateTime, user_id) Values (?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query) // complex query, so we prepare it first to avoid SQL injection and improve performance
 	if err != nil {

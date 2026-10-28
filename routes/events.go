@@ -40,7 +40,7 @@ func createEvent(context *gin.Context) {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not Authorized."})
 		return
 	}
-	err := utils.VerifyToken(token) // validate the token
+	userId, err := utils.VerifyToken(token) // validate the token
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not Authorized.", "error": err.Error()})
 		return
@@ -51,9 +51,9 @@ func createEvent(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not pass request data.", "error": err.Error()})
 		return
 	}
-	event.ID = 1
-	event.UserID = 1
-	err = event.Save() // save the event
+
+	event.UserID = userId // set the UserID of the event to the userId from the token
+	err = event.Save()    // save the event
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create event", "error": err.Error()})
 		return
