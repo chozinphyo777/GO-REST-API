@@ -78,7 +78,8 @@ func updateEvent(context *gin.Context) {
 	}
 
 	updatedEvent.ID = eventId
-	err = updatedEvent.Update() // Update the event
+	updatedEvent.UserID = userId // keep the authenticated owner ID; the request body should not overwrite it
+	err = updatedEvent.Update()  // Update the event
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create update event", "error": err.Error()})
 		return
